@@ -3,7 +3,7 @@
 const int RED_LED = 2;
 const int LIGHT_SENSOR = A5;
 const int SAMPLES_PER_UI = 5; // # samples in unit interval 
-const int DELAY = 100;
+const int DELAY = 400;
 const int LIGHT_RISE_TIME = 0; // Delay time for red light input high/low to take effect
 
 
@@ -42,11 +42,10 @@ void loop() {
 
     // input string to bytes
     int stringLen = inputString.length();
-    int buf_size = stringLen;
+    int buf_size = stringLen + 1;
     unsigned char byteArray[buf_size]; // Example size, make it appropriate
     // if (stringLen < sizeof(byteArray)) { // Check if buffer is large enough
     inputString.getBytes(byteArray, sizeof(byteArray));  
-    // }
 
     for (int byte_idx=0; byte_idx<buf_size; byte_idx++) {
       unsigned char byte = byteArray[byte_idx];
@@ -60,12 +59,8 @@ void loop() {
       }
       Serial.println("\n");
     }
-  
-
-    // bytes to bits
-
-
   }
+
   digitalWrite(RED_LED, LOW);
   delay(LIGHT_RISE_TIME);
   // int ldrValue = analogRead(LIGHT_SENSOR);
