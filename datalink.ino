@@ -3,8 +3,9 @@
 const int RED_LED = 2;
 const int LIGHT_SENSOR = A5;
 const int SAMPLES_PER_UI = 20; // # samples in unit interval 
-const int DELAY = 200;
-const int LIGHT_RISE_TIME = 60; // Delay time for red light input high/low to take effect
+const int DELAY = 50;
+const int LIGHT_RISE_TIME = 40; // Delay time for red light input high/low to take effect
+
 
 void setup() {
   pinMode(RED_LED, OUTPUT);
@@ -32,7 +33,6 @@ void loop() {
 
     // Read the incoming bytes until newline
     String inputString = Serial.readStringUntil('\n');
-    Serial.println(inputString);
 
     // input string to bytes
     int stringLen = inputString.length();
@@ -45,8 +45,6 @@ void loop() {
       unsigned char byte = byteArray[byte_idx];
       unsigned char bits_in_byte[8];
 
-      Serial.print("byte: ");
-      Serial.println(byte);
       bits(byte, bits_in_byte);
       for (int i=0; i<8; i++) {
         int current_bit = bits_in_byte[i];
@@ -55,26 +53,10 @@ void loop() {
           for (int i=0; i < SAMPLES_PER_UI; i++) {
             sample();
           }
-        // Serial.print(current_bit);
       }
       digitalWrite(RED_LED, LOW);
       delay(DELAY * 10);
-      Serial.println("\n");
 
     }
   }
-
-  // digitalWrite(RED_LED, LOW);
-  // delay(LIGHT_RISE_TIME);
-  // int ldrValue = analogRead(LIGHT_SENSOR);
-  // for (int i=0; i < SAMPLES_PER_UI; i++) {
-  //     sample();
-  // }
-
-  // digitalWrite(RED_LED, HIGH);
-  // delay(LIGHT_RISE_TIME);
-  // for (int i=0; i < SAMPLES_PER_UI; i++) {
-  //     sample();
-  // }
 }
-
