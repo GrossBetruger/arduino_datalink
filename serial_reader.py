@@ -21,7 +21,12 @@ with open('arduino_log.txt', 'w') as f:
         sleep(0.1)
         while True:
             # serial_data = ser.read()
-            data = int.from_bytes(ser.read(), 'big')
+            byte_data = ser.read(2)
+
+            if any(junk in byte_data for junk in [b'\r', b'\n', b'\x00']):
+                continue
+          
+            data = int.from_bytes(byte_data, 'big', signed=False)
             f.write(f"{data}\n")
                 
     except KeyboardInterrupt:
