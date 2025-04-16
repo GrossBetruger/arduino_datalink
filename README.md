@@ -1,6 +1,6 @@
 # Arduino Data Link
 
-A minimal end-to-end optical data‑link demonstration using an Arduino’s red LED and light sensor (LDR). Text messages sent over serial are encoded as light pulses and read back by the Arduino, then logged and plotted via Python.
+A minimal end-to-end optical data‑link demonstration using an Arduino’s red LED as transmitter and a light-dependent resistor (LDR) on analog pin A5 as receiver. Text messages sent over serial are encoded as light pulses, detected by the LDR via analog sampling, and sent back over serial to the host for logging and plotting via Python.
 
 ## Hardware Setup
 
