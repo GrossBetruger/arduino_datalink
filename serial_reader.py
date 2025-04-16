@@ -15,15 +15,17 @@ except serial.SerialException:
     exit()
 
 # Open (or create) a file to save the serial data
-with open('serial_log.txt', 'w') as f:
+with open('arduino_log.txt', 'w') as f:
     try:
+        ser.write(bytes(input("Enter a message: "), 'utf-8'))
+        sleep(0.1)
         while True:
-            ser.write(bytes(input("Enter a message: "), 'utf-8'))
-            sleep(0.1)
-            while (serial_data := ser.read()) != b'\n':
-                print(serial_data)
+            # serial_data = ser.read()
+            data = int.from_bytes(ser.read(), 'big')
+            f.write(f"{data}\n")
                 
-
     except KeyboardInterrupt:
         print("Data capture stopped.")
 
+
+# plot the data
