@@ -13,6 +13,9 @@ from serial.tools import list_ports
 from time import sleep
 import sys
 
+
+THRESHOLD = 1
+
 # Default serial port discovery
 def get_serial_port(baudrate=9600, timeout=1):
     """Attempt to open a serial port from OS-specific candidates."""
@@ -62,6 +65,7 @@ def read_mode(ser, outfile='arduino_log.txt'):
                     continue
                 try:
                     data = int(line)
+                    data = 1 if data > THRESHOLD else 0
                 except ValueError:
                     continue
                 f.write(f"{data}\n")
