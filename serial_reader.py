@@ -4,25 +4,34 @@ from serial.tools import list_ports
 from time import sleep
 
 # Define default ports for each OS
-macos_port = '/dev/tty.usbmodem2101'
-linux_port = '/dev/ttyUSB0'
-windows_port = 'COM3'  # adjust if needed
+macos_ports = ['/dev/tty.usbmodem2101']
+linux_ports = ['/dev/ttyUSB0']
+windows_ports = ['COM3', 'COM4']  # add more if needed
 
-# Select port based on operating system
+# Select candidate ports based on operating system
 system = platform.system()
 if system == 'Darwin':
-    port = macos_port
+    candidate_ports = macos_ports
 elif system == 'Linux':
-    port = linux_port
+    candidate_ports = linux_ports
 elif system == 'Windows':
-    port = windows_port
+    candidate_ports = windows_ports
 else:
-    port = macos_port
+    candidate_ports = macos_ports
 
-try:
-    ser = serial.Serial(port, 9600, timeout=1)
-except serial.SerialException:
-    print(f"Serial port not found: {port}")
+# Try to open each port until one succeeds
+ser = None
+for port in candidate_ports:
+    try:
+        ser = serial.Serial(port, 9600, timeout=1)
+        break
+    except serial.SerialException:
+        continue
+
+if ser is None:
+    print("Unable to open any default serial ports:")
+    for p in candidate_ports:
+        print(f"  {p}")
     print("Available ports:")
     for p in list_ports.comports():
         print(p.device)
