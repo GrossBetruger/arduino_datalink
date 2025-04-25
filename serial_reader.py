@@ -1,17 +1,31 @@
-import os
+import platform
 import serial
+from serial.tools import list_ports
 from time import sleep
-# Replace 'COM3' with your Arduino’s serial port (e.g., '/dev/ttyUSB0' for Linux)
+
+# Define default ports for each OS
 macos_port = '/dev/tty.usbmodem2101'
 linux_port = '/dev/ttyUSB0'
+windows_port = 'COM3'  # adjust if needed
+
+# Select port based on operating system
+system = platform.system()
+if system == 'Darwin':
+    port = macos_port
+elif system == 'Linux':
+    port = linux_port
+elif system == 'Windows':
+    port = windows_port
+else:
+    port = macos_port
 
 try:
-    ser = serial.Serial(macos_port, 9600, timeout=1)
-except serial.SerialException:  
-    print(f"Serial port not found: {macos_port}")
-    # run ls /dev/tty.* to find the correct port and print the output
+    ser = serial.Serial(port, 9600, timeout=1)
+except serial.SerialException:
+    print(f"Serial port not found: {port}")
     print("Available ports:")
-    print(os.popen('ls /dev/tty.*').read())
+    for p in list_ports.comports():
+        print(p.device)
     exit()
 
 # Open (or create) a file to save the serial data
