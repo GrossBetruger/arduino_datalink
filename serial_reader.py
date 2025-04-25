@@ -1,59 +1,96 @@
+#!/usr/bin/env python3
+"""
+Script to write to or read from Arduino serial port.
+
+Modes:
+  --write : prompt for message and send to Arduino
+  --read  : continuously read lines from Arduino and log to arduino_log.txt
+"""
+import argparse
 import platform
 import serial
 from serial.tools import list_ports
 from time import sleep
+import sys
 
-# Define default ports for each OS
-macos_ports = ['/dev/tty.usbmodem2101']
-linux_ports = ['/dev/ttyUSB0']
-windows_ports = ['COM3', 'COM4']  # add more if needed
+# Default serial port discovery
+def get_serial_port(baudrate=9600, timeout=1):
+    """Attempt to open a serial port from OS-specific candidates."""
+    macos_ports = ['/dev/tty.usbmodem2101']
+    linux_ports = ['/dev/ttyUSB0']
+    windows_ports = ['COM3', 'COM4']
+    system = platform.system()
+    if system == 'Darwin':
+        candidates = macos_ports
+    elif system == 'Linux':
+        candidates = linux_ports
+    elif system == 'Windows':
+        candidates = windows_ports
+    else:
+        candidates = macos_ports
 
-# Select candidate ports based on operating system
-system = platform.system()
-if system == 'Darwin':
-    candidate_ports = macos_ports
-elif system == 'Linux':
-    candidate_ports = linux_ports
-elif system == 'Windows':
-    candidate_ports = windows_ports
-else:
-    candidate_ports = macos_ports
+    for port in candidates:
+        try:
+            ser = serial.Serial(port, baudrate, timeout=timeout)
+            print(f"Opened serial port: {port}")
+            sleep(2)
+            return ser
+        except serial.SerialException:
+            continue
 
-# Try to open each port until one succeeds
-ser = None
-for port in candidate_ports:
-    try:
-        ser = serial.Serial(port, 9600, timeout=1)
-        break
-    except serial.SerialException:
-        continue
-
-if ser is None:
     print("Unable to open any default serial ports:")
-    for p in candidate_ports:
+    for p in candidates:
         print(f"  {p}")
     print("Available ports:")
     for p in list_ports.comports():
-        print(p.device)
-    exit()
+        print(f"  {p.device}")
+    sys.exit(1)
 
-# Open (or create) a file to save the serial data
-with open('arduino_log.txt', 'w') as f:
+def write_mode(ser):
+    """Prompt the user and write a single message to the serial port."""
+    msg = input("Enter a message: ")
+    ser.write(msg.encode('utf-8'))
+    print(f"Sent: {msg}")
+
+def read_mode(ser, outfile='arduino_log.txt'):
+    """Continuously read integer lines from the serial port and log to file."""
     try:
-        ser.write(bytes(input("Enter a message: "), 'utf-8'))
-        sleep(0.1)
-        while True:
-            # serial_data = ser.read()
-            byte_data = ser.readline().strip()
-            if byte_data == b'':
-                continue
-            data = int(byte_data)
-          
-            # data = int.from_bytes(byte_data, 'big', signed=False)
-            f.write(f"{data}\n")
-                
+        with open(outfile, 'w') as f:
+            while True:
+                line = ser.readline().strip()
+                if not line:
+                    continue
+                try:
+                    data = int(line)
+                except ValueError:
+                    continue
+                f.write(f"{data}\n")
+                f.flush()
     except KeyboardInterrupt:
-        print("Data capture stopped.")
+        print("\nData capture stopped.")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Arduino serial read/write utility"
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        '--read', action='store_true',
+        help='Read from serial port and log to arduino_log.txt'
+    )
+    group.add_argument(
+        '--write', action='store_true',
+        help='Write a message to serial port'
+    )
+    args = parser.parse_args()
+    ser = get_serial_port()
+    if args.write:
+        write_mode(ser)
+    elif args.read:
+        read_mode(ser)
+
+if __name__ == '__main__':
+    main()
 
 
 # plot the data
