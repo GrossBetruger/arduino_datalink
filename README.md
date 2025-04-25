@@ -34,6 +34,25 @@ A minimal end-to-end optical data‑link demonstration using an Arduino’s red 
 
        D2 ── [220Ω] ──|>|── GND rail
    ```
+## Circuit Schematic
+
+A schematic diagram of the LED → LDR data link:
+
+```text
+  +5V o──[ LDR ]──┬── A5 (Arduino)
+                  │
+                [10kΩ]
+                  │
+  GND o───────────┘
+
+  D2 (Arduino) o──[220Ω]──|>|── GND o
+```
+
+To generate a plotted schematic, run:
+
+```bash
+poetry run python schematic.py
+```
 
 ## Software Requirements
 
@@ -74,11 +93,17 @@ poetry install
    ./plot.sh
    ```
 
+6. **Plot Circuit Schematic**  
+   ```bash
+   poetry run python schematic.py
+   ```
+
 ## File Structure
 
 - `datalink.ino` — Arduino sketch (LED → LDR data‑link).
 - `serial_reader.py` — Sends message, reads sensor values to `arduino_log.txt`.
-- `log.py` — Loads and plots `arduino_log.txt`.
+ - `log.py` — Loads and plots `arduino_log.txt`.
+ - `schematic.py` — Plots the circuit schematic diagram (uses Plotly).
 - `find_port.sh`, `serial.sh`, `plot.sh`, `delete_log.sh` — Helper scripts.
 - `saved_logs/` — Archive directory for previous logs.
 - `pyproject.toml`, `poetry.lock` — Python project config.
