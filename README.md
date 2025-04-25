@@ -75,7 +75,7 @@ poetry install
    ```
 
 2. **Configure `serial_reader.py` (if needed)**  
-   Update `macos_port` or `linux_port` to match your system.
+   Update `macos_port`, `linux_port`, or `windows_port` to match your system’s Arduino serial port.
 
 3. **Clear Old Log**  
    ```bash
