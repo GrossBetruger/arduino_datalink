@@ -52,11 +52,15 @@ def get_serial_port(baudrate=9600, timeout=1):
 def write_mode(ser):
     """Prompt the user and write a single message to the serial port."""
     msg = input("Enter a message: ")
+    handshake = b'\x00\x01' * 4
+    ser.write(handshake)
     ser.write(msg.encode('utf-8'))
     print(f"Sent: {msg}")
 
 def read_mode(ser, outfile='arduino_log.txt'):
     """Continuously read integer lines from the serial port and log to file."""
+    buf = []
+    handshake = False
     try:
         with open(outfile, 'w') as f:
             while True:
@@ -66,6 +70,18 @@ def read_mode(ser, outfile='arduino_log.txt'):
                 try:
                     data = int(line)
                     data = 1 if data > THRESHOLD else 0
+                    buf.append(data)
+                    if handshake is False and buf[-8:] == [1] * 8:
+                        handshake = True
+                        buf = []
+
+                    if handshake is False:
+                        continue
+
+                    buf.append(data)
+                    if 1 in buf and buf[-8:] == [0] * 8:
+                        print("end signal: ", buf)
+                        break
                 except ValueError:
                     continue
                 f.write(f"{data}\n")
