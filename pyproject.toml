@@ -6,7 +6,7 @@ authors = ["GrossBetruger <koriatoren@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.12"
 pyserial = "^3.5"
 numpy = "^2.2.4"
 plotly = "^6.0.1"
